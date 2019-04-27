@@ -1,0 +1,83 @@
+#! /usr/bin/env perl6
+use v6.c;
+use Test;
+
+use-ok 'HTML::Lazy';
+use HTML::Lazy;
+
+# Test list mapper for handling node arguemnts
+is HTML::Lazy::as-list(Any), List, "as-list: Any --> List";
+is HTML::Lazy::as-list("Test"), List('Test'), "as-list: Str:D --> List(Str, )";
+is HTML::Lazy::as-list(<a b c>), <a b c>, "as-list: List --> List";
+
+# Test render calls
+{
+    my Bool $called-ok = False;
+    my &render-test = -> { $called-ok = True; 'test' }
+    is $called-ok, False, "Called from render";
+    is render(&render-test), 'test', "render - rendered";
+    is $called-ok, True, "Called from render";
+
+    $called-ok = False;
+    my $cached = pre-render &render-test;
+    is $called-ok, True, "Called from pre-render";
+    is render($cached), 'test', "pre-render - rendered";
+}
+
+# Test hyper-render
+# Using some timing to test for parrallel execution, may fail on slow systems or just on bad days :/
+{
+    my &render-test1 = -> { sleep 0.25; 'test1' }
+    my &render-test2 = -> { sleep 0.25; 'test2' }
+    my $start = now;
+    is hyper-render(&render-test1, &render-test2).&render, q:to<EXPECTED>.chomp, "render hyper-render, results are in order";
+    test1
+    test2
+    EXPECTED
+    my $end = now;
+    ok $end - $start < 0.45, "hyper-render duration less than sum of all sleep durations";
+}
+
+# text escaped for html
+is text('testing & texting<br />').&render, 'testing &amp; texting&lt;br /&gt;', "text returns closure";
+is text-raw('testing & texting<br />').&render, 'testing & texting<br />', "text returns closure";
+
+# Test node
+is node('span', Map).&render, '<span></span>', "Empty html element";
+
+is node('div', { :id<test>, }).&render, '<div id="test"></div>', "node: Empty html element with id";
+
+is node('div', { :class<test>, }).&render, '<div class="test"></div>', "node: Empty html element with class";
+
+is node('div', { :class<test test2>, }).&render, '<div class="test test2"></div>', "node: Empty html element with classes";
+
+is node('div', Map, text('testing')).&render, q:to<HTML>.chomp, "node: Element with content";
+<div>
+    testing
+</div>
+HTML
+
+# Test factory routines
+my &div = tag-factory 'div';
+is div(Map).&render, '<div></div>', 'div from tag-factory';
+my &row = with-attributes &div, {:class<row>, };
+is row.&render, '<div class="row"></div>', 'div row from with-attributes';
+
+# Attributes are not sorted so both possible orders of attributes must considered in testing hteml-en()'s output.
+my @html-output = q:to<HTML>.chomp;
+<!DOCTYPE html>
+<html lang="en" dir="ltr"></html>
+HTML
+
+@html-output.push: q:to<HTML>.chomp;
+<!DOCTYPE html>
+<html dir="ltr" lang="en"></html>
+HTML
+
+# html start generation
+is html-en.&render, @html-output.any, "html opening tag generator";
+
+# Include file test
+is include-file($*PROGRAM.Str).&render.comb('use Test').elems, 2, 'Include file content';
+
+done-testing
