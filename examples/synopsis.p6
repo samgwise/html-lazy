@@ -8,7 +8,9 @@ my $document = html-en
         title(Map, text('HTML::Lazy'))
     ),
     body( Map,
-        text('Hello world!')
+        p({ :class<example> },
+            text('Hello world!')
+        )
     );
 
 # Execute the generator

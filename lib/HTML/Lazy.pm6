@@ -19,13 +19,35 @@ my $document = html-en
         title(Map, text('HTML::Lazy'))
     ),
     body( Map,
-        text('Hello world!')
+        p({ :class<example> },
+            text('Hello world!')
+        )
     );
 
-# Execute the generator
+# Execute the generator and show the new HTML
 put render($document)
 
 =end code
+
+And the result:
+
+=begin output 
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <title>
+            HTML::Lazy
+        </title>
+    </head>
+    <body>
+        <p class="example">
+            Hello world!
+        </p>
+    </body>
+</html>
+
+=end output
 
 =head1 DESCRIPTION
 
@@ -45,13 +67,9 @@ This library is free software; you can redistribute it and/or modify it under th
 
 =end pod
 
-our sub as-list($v --> List) {
-    #= maps Any to Positional or Positional to Positional.
-    #= Internal utility for simplifying attribute generation.
-    return List if !$v.so;
-    return $v if $v ~~ Positional;
-    List($v)
-}
+#
+# Exportables
+#
 
 our sub render(&tag --> Str) is export(:DEFAULT) {
     #= calls a no argument Callable to produce the defined content.
@@ -157,14 +175,27 @@ our sub include-file(Str:D $file --> Callable) is export(:DEFAULT) {
 }
 
 #
-# Common tags
+# Utils
+#
+
+our sub as-list($v --> List) {
+    #= maps Any to Positional or Positional to Positional.
+    #= Internal utility for simplifying attribute generation.
+    return List if !$v.so;
+    return $v if $v ~~ Positional;
+    List($v)
+}
+
+#
+# Tags
 #
 
 # Header tags
 our &head is export( :tags ) = tag-factory 'head';
 our &title is export( :tags ) = tag-factory 'title';
+our &meta is export( :tags ) = tag-factory 'meta';
 
-# Content sections
+# Document ections
 our &body is export( :tags) = tag-factory 'body';
 our &div is export( :tags) = tag-factory 'div';
 our &footer is export( :tags) = tag-factory 'foorter';
@@ -178,6 +209,7 @@ our &ul is export( :tags) = tag-factory 'ul';
 our &ol is export( :tags) = tag-factory 'ol';
 our &li is export( :tags) = tag-factory 'li';
 our &code is export( :tags) = tag-factory 'code';
+our &samp is export( :tags) = tag-factory 'samp';
 our &pre is export( :tags) = tag-factory 'pre';
 our &table is export( :tags) = tag-factory 'table';
 our &thead is export( :tags) = tag-factory 'thead';
@@ -187,6 +219,8 @@ our &tr is export( :tags) = tag-factory 'tr';
 our &th is export( :tags) = tag-factory 'th';
 our &td is export( :tags) = tag-factory 'td';
 our &caption is export( :tags) = tag-factory 'caption';
+our &figure is export( :tags) = tag-factory 'figure';
+our &figurecaption is export( :tags) = tag-factory 'figurecaption';
 
 # Content
 our &a is export( :tags) = tag-factory 'a';
@@ -201,6 +235,7 @@ our &asource is export( :tags) = tag-factory 'source';
 our &svg is export( :tags) = tag-factory 'svg';
 our &noscript is export( :tags) = tag-factory 'noscript';
 our &iframe is export( :tags) = tag-factory 'iframe';
+our &template is export( :tags) = tag-factory 'template';
 
 # input
 our &form is export( :tags) = tag-factory 'form';

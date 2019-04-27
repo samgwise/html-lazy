@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/samgwise/html-lazy.svg?branch=master)](https://travis-ci.org/samgwise/html-lazy)
+
 NAME
 ====
 
@@ -14,12 +16,30 @@ my $document = html-en
         title(Map, text('HTML::Lazy'))
     ),
     body( Map,
-        text('Hello world!')
+        p({ :class<example> },
+            text('Hello world!')
+        )
     );
 
-# Execute the generator
+# Execute the generator and show the new HTML
 put render($document)
 ```
+
+And the result:
+
+    <!DOCTYPE html>
+    <html lang="en" dir="ltr">
+        <head>
+            <title>
+                HTML::Lazy
+            </title>
+        </head>
+        <body>
+            <p class="example">
+                Hello world!
+            </p>
+        </body>
+    </html>
 
 DESCRIPTION
 ===========
@@ -37,16 +57,6 @@ COPYRIGHT AND LICENSE
 Copyright 2019 = Sam Gillespie
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
-
-### sub as-list
-
-```perl6
-sub as-list(
-    $v
-) returns List
-```
-
-maps Any to Positional or Positional to Positional. Internal utility for simplifying attribute generation.
 
 ### sub render
 
@@ -151,4 +161,14 @@ sub include-file(
 ```
 
 Include content from a file. Use this function to include external files such as scripts and CSS in your templates. Content is included without any sanitisation of the input.
+
+### sub as-list
+
+```perl6
+sub as-list(
+    $v
+) returns List
+```
+
+maps Any to Positional or Positional to Positional. Internal utility for simplifying attribute generation.
 
