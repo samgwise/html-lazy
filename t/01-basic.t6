@@ -19,6 +19,12 @@ is HTML::Lazy::as-list(<a b c>), <a b c>, "as-list: List --> List";
     is $called-ok, True, "Called from render";
 
     $called-ok = False;
+    my &render-test-error = -> { $called-ok = True; die 'test' }
+    is $called-ok.so, False, "Called from render (error)";
+    is render(&render-test-error).so, False, "render (error) - rendered";
+    is $called-ok, True, "Called from render (error)";
+
+    $called-ok = False;
     my $cached = pre-render &render-test;
     is $called-ok, True, "Called from pre-render";
     is render($cached), 'test', "pre-render - rendered";

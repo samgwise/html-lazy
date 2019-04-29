@@ -72,14 +72,17 @@ This library is free software; you can redistribute it and/or modify it under th
 #
 
 our sub render(&tag --> Str) is export(:DEFAULT) {
-    #= calls a no argument Callable to produce the defined content.
-    #= This routine is here to show programmer intention but is equivilent to the many ways to execute CALL-ME on a Callable.
-    tag
+    #= Calls a no argument Callable to produce the defined content.
+    #= This routine is here to show programmer intention and catch any errors encountered when building the HTML Str.
+    #= All errors are returned in the form of a failure so it is important to check the truthiness of the result to determine if the HTML was generated succesfully.
+    CATCH { return fail "render action encountered the following error: { .gist }" }
+    try tag
 }
 
 our sub pre-render(&tag --> Callable) is export(:DEFAULT) {
     #= Executes a render and stores the result so it may be rendered later.
     #= Use this function to eagerly evaluate a document or sub document and store the resulting Str for use in other documents.
+    #= Please note that any errors encountered during a pre-render will not be encountered until the result of the pre-rendered output is used, since the Failure object will be caputred in the result.
     my $content = render &tag;
     -> {
         $content
