@@ -33,15 +33,15 @@ is HTML::Lazy::as-list(<a b c>), <a b c>, "as-list: List --> List";
 # Test hyper-render
 # Using some timing to test for parrallel execution, may fail on slow systems or just on bad days :/
 {
-    my &render-test1 = -> { sleep 0.25; 'test1' }
-    my &render-test2 = -> { sleep 0.25; 'test2' }
+    my &render-test1 = -> { sleep 0.5; 'test1' }
+    my &render-test2 = -> { sleep 0.5; 'test2' }
     my $start = now;
     is hyper-render(&render-test1, &render-test2).&render, q:to<EXPECTED>.chomp, "render hyper-render, results are in order";
     test1
     test2
     EXPECTED
     my $end = now;
-    ok $end - $start < 0.45, "hyper-render duration less than sum of all sleep durations";
+    ok $end - $start < 0.75, "hyper-render duration less than sum of all sleep durations";
 }
 
 # text escaped for html
