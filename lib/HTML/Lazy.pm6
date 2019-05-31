@@ -55,15 +55,117 @@ HTML::Lazy is a declarative HTML document generation module.
 It provides declarative functions for creating lazy HTML generation closures.
 The lazy generation can be overridden through an eager renderer and generation can be performed in parrallel with a hyper-renderer.
 
+=head2 Tags and adding your own
+
+For a list of html tags which can be exported, see the export list below. If you need one I've missed, you can generate your own tag function like this:
+
+=begin code :lang<perl6>
+my &head = tag-factory 'head';
+=end code
+
+You now have a routine for generating head tags.
+
+=head2 Prior Art
+
+This is certainly not the first Perl 6 HTML generator and will hardly be the lasst.
+A number of other modules provide differnt solutions which you should consider:
+
+=item L<XHTML::Writer | https://github.com/gfldex/perl6-xhtml-writer>
+=item L<Typesafe::XHTML::Writer | https://github.com/gfldex/perl6-typesafe-xhtml-writer>
+=item L<HTML::Tag | https://github.com/adaptiveoptics/HTML-Tag>
+
 =head1 AUTHOR
 
-= Sam Gillespie <samgwise@gmail.com>
+Sam Gillespie <samgwise@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2019 = Sam Gillespie
+Copyright 2019 Sam Gillespie.
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
+
+=head1 Export groups
+
+=begin table
+
+Symbol                   | Export groups
+========================================
+&render                  | :DEFAULT, :ALL
+&pre-render              | :DEFAULT, :ALL
+&hyper-render            | :DEFAULT, :ALL
+&text                    | :DEFAULT, :ALL
+&text-raw                | :DEFAULT, :ALL
+&node                    | :DEFAULT, :ALL
+&tag-factory             | :DEFAULT, :ALL
+&with-attributes         | :DEFAULT, :ALL
+&html-en                 | :DEFAULT, :ALL
+&include-file            | :DEFAULT, :ALL
+&head                    | :tags, :ALL 
+&title                   | :tags, :ALL 
+&meta                    | :tags, :ALL 
+&body                    | :tags, :ALL 
+&div                     | :tags, :ALL 
+&footer                  | :tags, :ALL 
+&header                  | :tags, :ALL 
+&br                      | :tags, :ALL 
+&col                     | :tags, :ALL 
+&colgroup                | :tags, :ALL 
+&ul                      | :tags, :ALL 
+&ol                      | :tags, :ALL 
+&li                      | :tags, :ALL 
+&code                    | :tags, :ALL 
+&samp                    | :tags, :ALL 
+&pre                     | :tags, :ALL 
+&table                   | :tags, :ALL 
+&thead                   | :tags, :ALL 
+&tbody                   | :tags, :ALL 
+&tfoot                   | :tags, :ALL 
+&tr                      | :tags, :ALL 
+&th                      | :tags, :ALL 
+&td                      | :tags, :ALL 
+&caption                 | :tags, :ALL 
+&figure                  | :tags, :ALL 
+&figurecaption           | :tags, :ALL 
+&a                       | :tags, :ALL 
+&img                     | :tags, :ALL 
+&audio                   | :tags, :ALL 
+&video                   | :tags, :ALL 
+&canvas                  | :tags, :ALL 
+&link                    | :tags, :ALL 
+&script                  | :tags, :ALL 
+&style                   | :tags, :ALL 
+&asource                 | :tags, :ALL 
+&svg                     | :tags, :ALL 
+&noscript                | :tags, :ALL 
+&iframe                  | :tags, :ALL 
+&template                | :tags, :ALL 
+&form                    | :tags, :ALL 
+&input                   | :tags, :ALL 
+&label                   | :tags, :ALL 
+&optgroup                | :tags, :ALL 
+&option                  | :tags, :ALL 
+&select                  | :tags, :ALL 
+&textarea                | :tags, :ALL 
+&button                  | :tags, :ALL 
+&span                    | :tags, :ALL 
+&p                       | :tags, :ALL 
+&i                       | :tags, :ALL 
+&b                       | :tags, :ALL 
+&q                       | :tags, :ALL 
+&blockquote              | :tags, :ALL 
+&em                      | :tags, :ALL 
+&sub                     | :tags, :ALL 
+&sup                     | :tags, :ALL 
+&h1                      | :tags, :ALL 
+&h2                      | :tags, :ALL 
+&h3                      | :tags, :ALL 
+&h4                      | :tags, :ALL 
+&h5                      | :tags, :ALL 
+&h6                      | :tags, :ALL 
+
+=end table
+
+=head1 Subroutines
 
 =end pod
 
@@ -103,8 +205,8 @@ our sub hyper-render(*@children --> Callable) is export(:DEFAULT) {
 
 our sub text(Str $text --> Callable) is export(:DEFAULT) {
     #= Create a closure to emit the text provided.
-    #= Text is escaped for HTML, use text-raw for including text which should not be sanitised.
-    #= The escaping uses escape-html from L<HTML::Escape | https://modules.perl6.org/dist/HTML::Escape:cpan:MOZNION>.
+    #= Text is escaped for HTML, use `text-raw` for including text which should not be sanitised.
+    #= The escaping uses escape-html from `HTML::Escape` (https://modules.perl6.org/dist/HTML::Escape:cpan:MOZNION).
     -> {
         escape-html $text
     }
@@ -114,14 +216,15 @@ our sub text-raw(Str $text --> Callable) is export(:DEFAULT) {
     #= Create a closure to emit the text provided.
     #= The text is returned with no escaping.
     #= This function is appropriate for inserting HTML from other sources, scripts or CSS.
-    #= If you are looking to add text content to a page you should look at the C<text> function as it will sanitize the input, so as to avoid any accidental or malicious inclusion of HTML or script content.
+    #= If you are looking to add text content to a page you should look at the `text` function as it will sanitize the input, so as to avoid any accidental or malicious inclusion of HTML or script content.
     -> { $text }
 }
+
 our sub node(Str:D $tag, Associative $attributes, *@children --> Callable) is export(:DEFAULT) {
     #= Generalised html element generator.
     #= This function provides the core rules for generating html tags.
     #= All tag generators are built upon this function.
-    #= To create specialised versions of this function use the C<tag-factory> and then further specialised with the C<with-attributes> function.
+    #= To create specialised versions of this function use the `tag-factory` and then further specialised with the C<with-attributes> function.
     -> {
         '<'
         ~ $tag
@@ -145,7 +248,7 @@ our sub node(Str:D $tag, Associative $attributes, *@children --> Callable) is ex
 our sub tag-factory(Str:D $tag --> Callable) is export(:DEFAULT) {
     #= Make functions to create specific tags.
     #= Returns a Callable with the signiture (Associative $attributes, *@children --> Callable).
-    #= The closure created by this routine wraps up an instance of the C<node>.
+    #= The closure created by this routine wraps up an instance of the `node` routine.
     -> Associative $attributes, *@children {
         node $tag, $attributes, |@children
     }
@@ -163,7 +266,7 @@ our sub with-attributes(&tag, Associative $attributes --> Callable) is export(:D
 our sub html-en(Associative :$attributes = {:lang<en>, :dir<ltr>}, *@children --> Callable) is export(:DEFAULT) {
     #= Create a HTML tag with DOCTYPE defenition.
     #= Use this function as the top of your document.
-    #= The default arguments to attributes are set for English, C<{:lang<en>, :dir<ltr>}>, but a new Map or hash can be used to tailor this routine to your needs.
+    #= The default arguments to attributes are set for English, `{:lang<en>, :dir<ltr>}`, but a new Map or hash can be used to tailor this routine to your needs.
     -> {
         "<!DOCTYPE html>\n"
         ~ render node 'html', $attributes, |@children
@@ -181,9 +284,9 @@ our sub include-file(Str:D $file --> Callable) is export(:DEFAULT) {
 # Utils
 #
 
+# maps Any to Positional or Positional to Positional.
+# Internal utility for simplifying attribute generation.
 our sub as-list($v --> List) {
-    #= maps Any to Positional or Positional to Positional.
-    #= Internal utility for simplifying attribute generation.
     return List if !$v.so;
     return $v if $v ~~ Positional;
     List($v)

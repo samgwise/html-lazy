@@ -15,7 +15,14 @@
   },
   "resources" : [ ],
   "source-url" : "https://github.com/samgwise/html-lazy.git",
-  "tags" : [ ],
+  "tags" : [
+    "Web",
+    "Content",
+    "Generation",
+    "Template",
+    "FP",
+    "Functional"
+  ],
   "test-depends" : [ ],
-  "version" : null
+  "version" : "0.0.1"
 }
