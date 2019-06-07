@@ -32,17 +32,19 @@ is HTML::Lazy::as-list(<a b c>), <a b c>, "as-list: List --> List";
 
 # Test hyper-render
 # Using some timing to test for parrallel execution, may fail on slow systems or just on bad days :/
-{
-    my &render-test1 = -> { await Promise.in(0.5).then( { 'test1' } ) }
-    my &render-test2 = -> { await Promise.in(0.5).then( { 'test2' } ) }
-    my $start = now;
-    is hyper-render(&render-test1, &render-test2).&render, q:to<EXPECTED>.chomp, "render hyper-render, results are in order";
-    test1
-    test2
-    EXPECTED
-    my $end = now;
-    ok $end - $start < 0.75, "hyper-render duration less than sum of all sleep durations";
-}
+# {
+#     my &render-test1 = -> { await Promise.in(0.5).then( { 'test1' } ) }
+#     my &render-test2 = -> { await Promise.in(0.5).then( { 'test2' } ) }
+#     my $start = now;
+#     is hyper-render(&render-test1, &render-test2).&render, q:to<EXPECTED>.chomp, "render hyper-render, results are in order";
+#     test1
+#     test2
+#     EXPECTED
+#     my $end = now;
+#     ok $end - $start < 0.75, "hyper-render duration less than sum of all sleep durations";
+# }
+
+is hyper-render(:batch<1>, :degree<2>, -> {‚first‘}, -> {‚second‘}).(), „first\nsecond“, ‚hyper-render with hyper-arguments‘;
 
 # text escaped for html
 is text('testing & texting<br />').&render, 'testing &amp; texting&lt;br /&gt;', "text returns closure";

@@ -191,15 +191,14 @@ our sub pre-render(&tag --> Callable) is export(:DEFAULT) {
     }
 }
 
-our sub hyper-render(*@children --> Callable) is export(:DEFAULT) {
+constant %default-hyper-args = Iterable.can('hyper')[0].signature.params.grep({.?name ~~ '$batch'|'$degree'}).map({ .name => .default.()}).Hash;
+our sub hyper-render(:$batch? = %default-hyper-args<$batch>, :$degree? = %default-hyper-args<$degree>, *@children --> Callable) is export(:DEFAULT) {
     #= Children of a hyper-render function will be rendered in parrallel when called.
+    #= :batch and :degree have the same semantics and default values as in Any.hyper.
     #= The results will be reassembled without change to order.
-    -> {
-        my @promises = do for @children -> $child {
-            start { render $child }
-        }
 
-        join("\n", @promises.map( -> $promise { await $promise } ))
+    -> {
+        @children.hyper(:$degree, :$batch).map({ .() }).join("\n")
     }
 }
 

@@ -119,11 +119,13 @@ Executes a render and stores the result so it may be rendered later. Use this fu
 
 ```perl6
 sub hyper-render(
+    :$batch,
+    :$degree,
     *@children
 ) returns Callable
 ```
 
-Children of a hyper-render function will be rendered in parrallel when called. The results will be reassembled without change to order.
+Children of a hyper-render function will be rendered in parrallel when called. The results will be reassembled without change to order. The same semantics and default values apply for `:$batch` and `:$degree` as in `Any.hyper`.
 
 ### sub text
 
