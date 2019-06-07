@@ -1,0 +1,29 @@
+use v6.d;
+
+use Test;
+use HTML::Lazy :ALL;
+
+plan 3;
+
+my $d = html-en( 
+    body(
+        p(:class<foo>, text(‚oi‽‘))
+    )
+);
+
+ok $d().contains(‚<p class="foo">‘), ‚Slurpy arguments work in general‘;
+
+$d = html-en(:lang<de>, :dir<ltr>,
+    body(
+        p(:class<foo>, text(‚oi‽‘))
+    )
+);
+
+ok $d().contains(‚lang="de"‘), ‚Slurpy arguments work in html-en‘;
+
+my &custom = tag-factory ‚custom‘;
+
+$d = html-en
+    custom(:attr<ibute>);
+
+ok $d().contains(‚<custom attr="ibute"></custom>‘), ‚Slurpy arguments work with custom tags‘;
