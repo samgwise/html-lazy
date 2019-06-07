@@ -220,7 +220,7 @@ our sub text-raw(Str $text --> Callable) is export(:DEFAULT) {
     -> { $text }
 }
 
-our sub node(Str:D $tag, Associative $attributes, *@children --> Callable) is export(:DEFAULT) {
+our sub node(Str:D $tag, %attributes, *@children --> Callable) is export(:DEFAULT) {
     #= Generalised html element generator.
     #= This function provides the core rules for generating html tags.
     #= All tag generators are built upon this function.
@@ -228,8 +228,8 @@ our sub node(Str:D $tag, Associative $attributes, *@children --> Callable) is ex
     -> {
         '<'
         ~ $tag
-        ~ ($attributes.so
-            ?? ' ' ~ $attributes.kv
+        ~ (%attributes.so
+            ?? ' ' ~ %attributes.kv
                     .map( -> $attr, $val { $attr ~ '="' ~ as-list($val).join(' ') ~'"'} )
                     .join(' ')
             !! ''
@@ -249,27 +249,27 @@ our sub tag-factory(Str:D $tag --> Callable) is export(:DEFAULT) {
     #= Make functions to create specific tags.
     #= Returns a Callable with the signiture (Associative $attributes, *@children --> Callable).
     #= The closure created by this routine wraps up an instance of the `node` routine.
-    -> Associative $attributes, *@children {
-        node $tag, $attributes, |@children
+    -> *%attributes, *@children {
+        node $tag, %attributes, |@children
     }
 }
 
-our sub with-attributes(&tag, Associative $attributes --> Callable) is export(:DEFAULT) {
+our sub with-attributes(&tag, *%attributes --> Callable) is export(:DEFAULT) {
     #= Create a tag with preset attributes.
     #= Allows for further specialisation of tag closures from the C<tag-factory> routine.
     #= The closure returned from this routine has the following signiture (*@children --> Callable).
     -> *@children {
-        tag $attributes, |@children
+        tag %attributes, |@children
     }
 }
 
-our sub html-en(Associative :$attributes = {:lang<en>, :dir<ltr>}, *@children --> Callable) is export(:DEFAULT) {
+our sub html-en(*%attributes, *@children --> Callable) is export(:DEFAULT) {
     #= Create a HTML tag with DOCTYPE defenition.
     #= Use this function as the top of your document.
     #= The default arguments to attributes are set for English, `{:lang<en>, :dir<ltr>}`, but a new Map or hash can be used to tailor this routine to your needs.
     -> {
         "<!DOCTYPE html>\n"
-        ~ render node 'html', $attributes, |@children
+        ~ render node 'html', %attributes || {:lang<en>, :dir<ltr>}, |@children
     }
 }
 
